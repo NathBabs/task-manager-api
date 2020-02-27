@@ -36,7 +36,7 @@ Delete your avatar
 
 Retrieve your avatar
 
-* /users/:id/avatar
+* /users/:id/avatar(get)
 
 
 ### Query the following endpoints for the task routes
@@ -59,4 +59,4 @@ Modify a task with it's ID
 
 Delete a task
 
-* /tasks/:id
+* /tasks/:id(delete)
