@@ -1,7 +1,7 @@
 const express = require("express");
 const User = require("../models/user");
 const auth = require("../middleware/auth");
-const { sendWelcomeEmail, sendCancellationEmail } = require('../emails/account');
+const { sendWelcomeEmail, sendCancellationEmail, sendOptInMail } = require('../emails/account');
 const sharp = require('sharp');
 const router = new express.Router();
 const multer = require("multer");
@@ -19,15 +19,19 @@ const uploads = multer({
 });
 
 router.post("/users", async (req, res) => {
-  const user = new User(req.body);
+  const fullUser = {...req.body, active: 0};
+  const user = new User(fullUser);
 
   try {
-    await user.save();
-    sendWelcomeEmail(user.email, user.name);
-    const token = await user.generateAuthToken();
+    const unverifiedUser = await user.save();
+    //sendWelcomeEmail(user.email, user.name);
+    sendOptInMail(user.email, unverifiedUser._id);
+    //console.log(unverifiedUser);
+
+    //const token = await user.generateAuthToken();
     res.status(201).send({
       user: user,
-      token: token
+      msg: "You've been registered. Please check your email for the verification link."
     });
   } catch (e) {
     res.status(400).send(e);
