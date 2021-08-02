@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    
+    active: {
+        type: Boolean,
+        required: true
+    },
+
     tokens : [{
         token : {
             type : String,
