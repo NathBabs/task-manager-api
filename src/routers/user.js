@@ -1,4 +1,8 @@
 const express = require("express");
+//const { nanoid } = require('nanoid');
+const { customAlphabet } = require('nanoid');
+const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-';
+const nanoid = customAlphabet(alphabet, 12);
 const User = require("../models/user");
 const auth = require("../middleware/auth");
 const {
@@ -8,7 +12,14 @@ const {
 } = require("../emails/account");
 const sharp = require("sharp");
 const router = new express.Router();
+const { supabase } = require('../utils/initSupabase');
+const { getUrl } = require('../utils/getPublicUrl');
 const multer = require("multer");
+
+// Use the JS library to create a bucket.
+
+//const { data, error } = await supabase.storage.createBucket('avatars')
+
 const uploads = multer({
   limits: {
     fileSize: 1000000,
@@ -36,6 +47,7 @@ router.post("/users", async (req, res) => {
         "You've been registered. Please check your email for the verification link.",
     });
   } catch (e) {
+    console.log(e)
     res.status(400).send(e);
   }
 });
@@ -157,39 +169,65 @@ router.post(
   auth,
   uploads.single("avatar"),
   async (req, res) => {
-    const buffer = await sharp(req.file.buffer)
-      .resize({ width: 250, height: 250 })
-      .png()
-      .toBuffer();
+    //const key = `${req.user._id}/${nanoid(12)}`
+    try {
+      // resize image with sharp
+      const buffer = await sharp(req.file.buffer)
+        .resize({ width: 250, height: 250 })
+        .png()
+        .toBuffer();
 
-    req.user.avatar = buffer;
-    await req.user.save();
-    res.send();
-  },
-  (error, req, res, next) => {
-    res.status(400).send({ error: error.message });
-  }
-);
+      // get file extension and generate filename
+      const ext = req.file.originalname.split('.').pop()
+      const fileName = `${nanoid()}.${ext}`
+
+      // save to supabase bucket here
+      const { data, error } = await supabase
+        .storage
+        .from('avatar')
+        .upload(`${req.user._id}/${fileName}`, buffer, {
+          contentType: req.file.mimeType
+        });
+
+      if (error) throw new Error(error)
+
+      // get public url from supabase
+      const url = await getUrl('avatar', `${req.user._id}/${fileName}`)
+
+      req.user.avatar = url;
+      await req.user.save();
+      res.status(201).send({
+        sucess: true,
+        data,
+        url,
+      });
+    } catch (error) {
+      res.status(400).send({ error: error.message });
+    }
+  });
 
 router.delete("/users/me/avatar", auth, async (req, res) => {
+  // get the folder name along with the object id from req.user.avatar
+  const url = req.user.avatar
+  // get folder and file name to delete
+  const fileToDelete = url.substring(url.length - 41)
+
+
+  // delete file from storage
+  const { data, error } = await supabase.storage.from('avatar').remove([`${fileToDelete}`]);
+
+  if (error) {
+    return res.status(500).send({
+      success: false,
+      error: error
+    })
+  }
   req.user.avatar = undefined;
   await req.user.save();
-  res.send();
-});
-
-router.get("/users/:id/avatar", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user || !user.avatar) {
-      throw new Error("");
-    }
-
-    res.set("Content-Type", "image/png");
-    res.send(user.avatar);
-  } catch (e) {
-    res.status(404).send();
-  }
+  return res.status(200).send({
+    success: true,
+    data: data
+  });
 });
 
 module.exports = router;

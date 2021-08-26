@@ -19,15 +19,18 @@
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
+    "@supabase/supabase-js": "^1.21.0",
     "@types/mongodb": "^3.3.6",
+    "base64-arraybuffer": "^0.2.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
     "mongodb": "^3.3.3",
-    "mongoose": "^5.7.8",
+    "mongoose": "^5.13.5",
+    "morgan": "^1.10.0",
     "multer": "^1.4.1",
-    "nanoid": "^3.1.12",
-    "sharp": "^0.23.4",
+    "nanoid": "^3.1.23",
+    "sharp": "^0.28.3",
     "validator": "^10.9.0"
   },
   "devDependencies": {
