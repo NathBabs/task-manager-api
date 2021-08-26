@@ -189,15 +189,17 @@ router.post(
           contentType: req.file.mimeType
         });
 
+      if (error) throw new Error(error)
+
       // get public url from supabase
-      const url = await getUrl('avatars', `${req.user._id}/${fileName}`)
+      const url = await getUrl('avatar', `${req.user._id}/${fileName}`)
 
       req.user.avatar = url;
       await req.user.save();
       res.status(201).send({
         sucess: true,
         data,
-        url
+        url,
       });
     } catch (error) {
       res.status(400).send({ error: error.message });
@@ -205,24 +207,27 @@ router.post(
   });
 
 router.delete("/users/me/avatar", auth, async (req, res) => {
+  // get the folder name along with the object id from req.user.avatar
+  const url = req.user.avatar
+  // get folder and file name to delete
+  const fileToDelete = url.substring(url.length - 41)
+
+
+  // delete file from storage
+  const { data, error } = await supabase.storage.from('avatar').remove([`${fileToDelete}`]);
+
+  if (error) {
+    return res.status(500).send({
+      success: false,
+      error: error
+    })
+  }
   req.user.avatar = undefined;
   await req.user.save();
-  res.send();
-});
-
-router.get("/users/:id/avatar", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user || !user.avatar) {
-      throw new Error("");
-    }
-
-    res.set("Content-Type", "image/png");
-    res.send(user.avatar);
-  } catch (e) {
-    res.status(404).send();
-  }
+  return res.status(200).send({
+    success: true,
+    data: data
+  });
 });
 
 module.exports = router;
