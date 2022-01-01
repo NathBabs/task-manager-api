@@ -46,6 +46,14 @@ Add a new Task, sending description and completed status (boolean)
 * /tasks(post)
 
 Retrieve all yours tasks
+    
+    To get completed tasks GET /tasks?completed=true
+    limit and skip
+    GET /tasks?limit=10&skip=10
+    GET /tasks?sortBy=createdAt:desc
+    ?due=true => all tasks less than today => $lt
+    date=20220203 NOTE: you can't query for both due and a particular date in a particular request
+    else the date will override the due query
 
 * /tasks(get)
 

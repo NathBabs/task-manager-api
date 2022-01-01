@@ -2,16 +2,14 @@ const express = require('express');
 require('./db/mongoose');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const userRouter = require('./routers/user');
-const taskRouter = require('./routers/task');
+const routes = require('./routes');
 
 const app = express();
 //const port = process.env.PORT;
 
 app.use(morgan('dev'))
 app.use(express.json());
-app.use(userRouter);
-app.use(taskRouter);
+app.use(routes);
 
 
 //
