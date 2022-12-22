@@ -21,7 +21,7 @@
     "base64-arraybuffer": "^0.2.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.16.4",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.29.1",
     "mongodb": "^3.3.3",
     "mongoose": "^5.13.5",
