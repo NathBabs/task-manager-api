@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^6.3.1",
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^1.21.0",
     "@types/mongodb": "^3.3.6",
     "base64-arraybuffer": "^0.2.0",
@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "env-cmd": "^8.0.2",
-    "jest": "^25.1.0",
+    "jest": "^30.2.0",
     "nodemon": "^1.18.9",
     "supertest": "^4.0.2"
   }
